@@ -56,7 +56,7 @@ def convert_emoji(_data, modifier, _modifier_data, string):
     if modifier in NEEDSPLIT:
         (start, msg) = string.split(':', 1)
         msg = emoji.emojize(msg, use_aliases=True)
-        return start + msg
+        return start + ':' + msg
 
     return emoji.emojize(string, use_aliases=True)
 
