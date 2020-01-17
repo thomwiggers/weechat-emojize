@@ -54,7 +54,12 @@ def convert_emoji(_data, modifier, _modifier_data, string):
     """Convert the emoji in event messages"""
     # Check if this message has a segment we shouldn't touch.
     if modifier in NEEDSPLIT:
-        (start, msg) = string.split(' :', 1)
+        try:
+            (start, msg) = string.split(' :', 1)
+        except ValueError:
+            print("Couldn't split and emojize '{}'", string)
+            return string
+
         msg = emoji.emojize(msg, use_aliases=True)
         return start + ' :' + msg
 
