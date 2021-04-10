@@ -10,30 +10,32 @@ License: CC0
 Author: Thom Wiggers
 Repository: https://github.com/thomwiggers/weechat-emojize
 
-This plugin supports python 3 and requires the emoji python package.
+This plugin supports python 3 and requires the 'emojis' python package.
+Requires at least weechat 1.3
 """
 
-import emoji
+
+def register():
+    weechat.register(
+        "emojize",
+        "Thom Wiggers",
+        "1.0.0",
+        "CC0",
+        "Convert emoji shortcodes to unicode emoji",
+        "",  # shutdown function
+        "utf-8",
+    )
+
+
+import_ok = True
+
+try:
+    import emoji
+except ImportError:
+    print("Failed to import emojis package, try installing 'emojis'")
+    import_ok = False
+
 import weechat
-
-weechat.register(
-    "emojize",
-    "Thom Wiggers",
-    "1.0.0",
-    "CC0",
-    "Convert emoji shortcodes to unicode emoji",
-    "",  # shutdown function
-    "utf-8",
-)
-
-NEEDSPLIT = (
-    'irc_in2_PRIVMSG',
-    'irc_in2_NOTICE',
-    'irc_in2_PART',
-    'irc_in2_QUIT',
-    'irc_in2_KNOCK',
-    'irc_in2_AWAY'
-)
 
 
 HOOKS = (
@@ -53,21 +55,19 @@ HOOKS = (
 def convert_emoji(_data, modifier, _modifier_data, string):
     """Convert the emoji in event messages"""
     # Check if this message has a segment we shouldn't touch.
-    if modifier in NEEDSPLIT:
-        try:
-            (start, msg) = string.split(' :', 1)
-        except ValueError:
-            if 'PART' not in modifier:
-                print("Couldn't split and emojize '{}'".format(string))
-            (start, msg) = (string, '')
+    msg = weechat.info_get_hashtable("irc_message_parse", {"message": string})
+    if msg["text"] != "" and msg["pos_text"]:
+        return (
+            string[: msg["pos_text"]]
+            + emoji.emojize(string, use_aliases=True)
+            + string[(msg["pos_text"] + len(msg["text"])) :]
+        )
 
-        msg = emoji.emojize(msg, use_aliases=True)
-        return start + ' :' + msg
-
-    return emoji.emojize(string, use_aliases=True)
+    return string
 
 
-for hook in HOOKS:
-    weechat.hook_modifier("irc_in2_{}".format(hook), "convert_emoji", "")
-
-weechat.hook_modifier("input_text_for_buffer", "convert_emoji", "")
+if __name__ == "__main__" and import_ok:
+    register()
+    weechat.hook_modifier("input_text_for_buffer", "convert_emoji", "")
+    for hook in HOOKS:
+        weechat.hook_modifier("irc_in2_{}".format(hook), "convert_emoji", "")
