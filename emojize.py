@@ -57,8 +57,9 @@ def convert_emoji(_data, modifier, _modifier_data, string):
         try:
             (start, msg) = string.split(' :', 1)
         except ValueError:
-            print("Couldn't split and emojize '{}'", string)
-            return string
+            if 'PART' not in modifier:
+                print("Couldn't split and emojize '{}'".format(string))
+            (start, msg) = (string, '')
 
         msg = emoji.emojize(msg, use_aliases=True)
         return start + ' :' + msg
