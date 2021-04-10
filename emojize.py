@@ -56,11 +56,12 @@ def convert_emoji(_data, modifier, _modifier_data, string):
     """Convert the emoji in event messages"""
     # Check if this message has a segment we shouldn't touch.
     msg = weechat.info_get_hashtable("irc_message_parse", {"message": string})
-    if msg["text"] != "" and msg["pos_text"] > 0:
+    pos_text = int(msg["pos_text"])
+    if msg["text"] != "" and pos_text > 0:
         return (
-            string[: msg["pos_text"]]
+            string[:pos_text]
             + emoji.emojize(string, use_aliases=True)
-            + string[(msg["pos_text"] + len(msg["text"])) :]
+            + string[(pos_text + len(msg["text"])) :]
         )
 
     return string
