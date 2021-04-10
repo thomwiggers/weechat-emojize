@@ -60,9 +60,12 @@ def convert_emoji(_data, modifier, _modifier_data, string):
     if msg["text"] != "" and pos_text > 0:
         return (
             string[:pos_text]
-            + emoji.emojize(string, use_aliases=True)
+            + emoji.emojize(msg["text"], use_aliases=True)
             + string[(pos_text + len(msg["text"])) :]
         )
+
+    if modifier == "input_text_for_buffer":
+        return emoji.emojize(msg["text"], use_aliases=True)
 
     return string
 
