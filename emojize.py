@@ -59,9 +59,9 @@ def convert_emoji(_data, modifier, _modifier_data, string):
     pos_text = int(msg["pos_text"])
     if msg["text"] != "" and pos_text > 0:
         return (
-            string[:pos_text]
-            + emoji.emojize(msg["text"], use_aliases=True)
-            + string[(pos_text + len(msg["text"])) :]
+            string.replace(msg["text"],
+                           emoji.emojize(msg["text"],
+                                         use_aliases=True))
         )
 
     if modifier == "input_text_for_buffer":
